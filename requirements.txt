@@ -1,0 +1,12 @@
+#  bazel run //:jsoj_deps.update
+wrapt==1.17.2
+pathlib==1.0.1
+pandas==2.2.3
+pandas-gbq==0.23.1
+et-xmlfile==2.0.0
+openpyxl==3.1.2
+pyyaml
+numpy
+lark
+empy==3.3.4
+pytest

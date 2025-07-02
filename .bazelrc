@@ -1,0 +1,13 @@
+# Enable Bzlmod for every Bazel command
+common --enable_bzlmod
+common --incompatible_disallow_empty_glob=False
+# Set location of Bazel cache (should not be moved to .bazelrc since this is specific to the dev and aos containers)
+# startup --output_base=/can_decoder/.cache/bazel/_bazel_can/output
+# startup --output_user_root=/can_decoder/.cache/bazel/_bazel_can/
+
+# Use persistent workers, if available, use sandboxing as backup
+build --spawn_strategy=worker,processwrapper-sandbox
+
+test --test_env=HOME
+test --test_output=all --verbose_failures
+# --cache_test_results=no
