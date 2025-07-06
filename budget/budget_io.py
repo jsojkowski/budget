@@ -7,10 +7,37 @@ from datetime import date
 from enum import Enum
 
 DEFAULT_PATH = Path("/Users/juliesojkowski/repo/budget/data")
+
+# class syntax
+class IOType(Enum):
+    YAML = 1
+    XLXS = 2
+
+
+class IOFactory:
+
+    def __init__(self):
+        self.io_map = {}
+
+    def get_io(self, type: IOType) -> IOType:
+        match type:
+            case IOType.YAML:
+                if IOType.YAML not in self.io_map.keys():
+                    self.io_map[IOType.YAML] = YamlBudgetIO()
+                return self.io_map[IOType.YAML]
+            # case IOType.XLXS:
+            #     if IOType.XLXS not in self.io_map.keys():
+            #         self.io_map[IOType.XLXS] = XlxsBudgetIO()
+            #     return self.io_map[IOType.XLXS]
+            case _:  # Default case for any other value
+                print("Unknown menu option. Saving content and exiting.")
+                return None
+            
 class BudgetIO(ABC):
     def __init__(self, filepath: Path) -> None:
         self.filepath: Path = filepath
         self.extension = None
+        self.type = None
 
     @abstractmethod
     def import_budget(self, month: int, year: int) -> BudgetMonth:
@@ -27,6 +54,7 @@ class YamlBudgetIO(BudgetIO):
     def __init__(self, filepath: Path = DEFAULT_PATH) -> None:
         super().__init__(filepath)
         self.extension = "yaml"
+        self.type = IOType.YAML
     
     def import_budget(self, month: int, year: int) -> BudgetMonth:
         input_filepath = self.get_filepath(month, year) 

@@ -8,6 +8,7 @@ import yaml
 from common.input_util import get_input_with_condition, get_input_not_empty
 from budget.budget_month import BudgetMonth
 from budget.expense import ExpenseItem
+from budget_io import IOType, IOFactory
 
 DEFAULT_DAY_KEY: Final = 1
 
@@ -17,6 +18,7 @@ class Budget:
     def __init__(self) -> None:
         #: months in the budget
         self.months: Dict[datetime.date, BudgetMonth] = {}
+        self.io_factory = IOFactory()
 
 
     def add_expense(self, new_expense: ExpenseItem = None) -> None:
@@ -48,3 +50,7 @@ class Budget:
             new_month = new_month.combine(self.months[date_key])
         self.months[date_key] = new_month
         return new_month
+    
+    def export(self, format_type: IOType = IOType.YAML) -> None:
+        for month in self.months:
+            self.io_factory.get_io(format_type).export_budget(month)

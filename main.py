@@ -29,7 +29,7 @@ def main(argv: List[str]) -> int:
     is_value = lambda x: int(x) in [e.value for e in MainMenuOptions]
     selected_option = MainMenuOptions(int(get_input_with_condition(help_menu, is_value)))
     all_months = Budget()
-    current_month = all_months.create_month()
+    current_month = None
     while(True):
         match selected_option:
             case MainMenuOptions.NEW_MONTH:
@@ -37,13 +37,13 @@ def main(argv: List[str]) -> int:
             case MainMenuOptions.CREATE_EXPENSE:
                 all_months.add_expense()
             case MainMenuOptions.EXPORT_EXPENSES:
-                print("Prepare to stop or go. The light is yellow.")
+                all_months.export()
             case MainMenuOptions.VIEW_EXPENSES:
                 print("Go! The light is green.")
             case MainMenuOptions.PRINT_MONTH:
                 current_month.print()
             case _:  # Default case for any other value
-                print("Unknown menu option.")
+                print("Unknown menu option. Saving content and exiting.")
                 return os.EX_SOFTWARE
         selected_option = MainMenuOptions(int(get_input_with_condition(help_menu, is_value)))
 
