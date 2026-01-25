@@ -8,19 +8,19 @@ import sys
 def test_yaml() -> None:
     budget_month = BudgetMonth(6, 2025)
     fixed_expense = ExpenseItem(name="rent", 
-        price=1300, 
+        amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
         date=datetime.date(2025,7,1)
         )
     gas_expense = ExpenseItem(name="gas", 
-        price=35.21, 
+        amount=35.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,1)
         )
     gas_expense2 = ExpenseItem(name="gas", 
-        price=25.21, 
+        amount=25.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,12)

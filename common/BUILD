@@ -16,3 +16,12 @@ py_library(
     "logging.py",
   ],
 )
+
+
+
+py_library(
+  name = "consts",
+  srcs = [
+    "consts.py",
+  ],
+)

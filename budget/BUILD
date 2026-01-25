@@ -22,16 +22,29 @@ py_library(
   deps = [
     ":expense",
     ":budget-month",
+    ":budget-io",
     "//common:input-util",
+    "//pdf_reader:credit-card-statement",
     requirement("pyyaml"),
   ],
 )
-
+py_library(
+  name = "expense-type-map",
+  srcs = [
+    "expense_type_map.py",
+  ],
+  deps  = [
+    ":expense",
+  ]
+)
 py_library(
   name = "expense",
   srcs = [
     "expense.py",
   ],
+  deps  = [
+    "//common:input-util",
+  ]
 )
 
 py_library(

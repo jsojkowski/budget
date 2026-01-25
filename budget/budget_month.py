@@ -5,20 +5,27 @@ import datetime
 from pathlib import Path
 import yaml
 
-BASE_EXPENSE_LIST: Final= [
+DEFAULT_INCOME = 2000.00
+
+def get_base_expense_list(date):
+    return [
 ExpenseItem(name="rent", 
-            price=1300, 
+            amount=1300, 
             description="All shared expenses that come out of bug account.", 
             category=ExpenseType.FIXED,
-            date=datetime.date(2025,6,1)
+            date=date
             ), 
+       ExpenseItem(name="gym", 
+            amount=17.99	, 
+            description="crunch.", 
+            category=ExpenseType.FIXED,
+            date=date,
+            ),      
 ]
-
-DEFAULT_INCOME = 2000.00
 
 class BudgetMonth:
     def __init__(self, month: int, year: int, income: float = DEFAULT_INCOME) -> None:
-        self.expenses: List[ExpenseItem] = []
+        self.expenses: List[ExpenseItem] = get_base_expense_list(datetime.date(year, int(month), 1))
         self._filtered_expenses_by_category = {}
         self._is_filter_cached = False
         self.income = income
@@ -59,7 +66,7 @@ class BudgetMonth:
         total = 0.0
         for category, expenses in self._filtered_expenses_by_category.items():
             for expense in expenses:
-                category_total += expense.price
+                category_total += expense.amount
             print(f"\t\t{category}: {category_total}")
             total += category_total
             category_total = 0.0
@@ -73,7 +80,7 @@ class BudgetMonth:
         with open(filename, 'r') as file:
             data = yaml.safe_load(file)
         for item in data["expenses"]:
-            self.expenses.append(ExpenseItem(name = item["name"], price=item["price"], description=item["description"], category=getattr(ExpenseType, item["category"]), date=datetime.fromisoformat(item["date"])))
+            self.expenses.append(ExpenseItem(name = item["name"], amount=item["amount"], description=item["description"], category=getattr(ExpenseType, item["category"]), date=datetime.fromisoformat(item["date"])))
         self._is_filter_cached = False
 
     def write_spreadsheet(self, filename: Path) -> None:
@@ -85,7 +92,7 @@ class BudgetMonth:
         raise NotImplementedError
 
     def write_yaml(self, output_path: Path) -> None:
-        """Write the current month to an excel file
+        """Write the current month to a yaml
 
         Args:
             output_path (Path): the path to write to
@@ -95,7 +102,7 @@ class BudgetMonth:
             dump = yaml.dump(self.dict, default_flow_style = False, allow_unicode = True, encoding = None)
             yaml_file.write( dump )
 
-    @staticmethod
+    @classmethod
     def create(cls):
         """Create a Budget Month from user input
 
@@ -105,7 +112,7 @@ class BudgetMonth:
         month = int(input("Enter month: "))
         year = input("Enter year (press `enter` key for current year): ")
         if len(year) == 0:
-            current_datetime = datetime.now()
+            current_datetime = datetime.date.today()
             year = current_datetime.year
         else:
             year = int(year)

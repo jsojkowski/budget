@@ -7,7 +7,7 @@ import sys
 def test_add_expense() -> None:
     budget_month = BudgetMonth(6, 2025)
     test_expense = ExpenseItem(name="rent", 
-        price=1300, 
+        amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
         date=datetime.date(2025,7,1)
@@ -19,19 +19,19 @@ def test_add_expense() -> None:
 def test_filter_expenses() -> None:
     budget_month = BudgetMonth(6, 2025)
     fixed_expense = ExpenseItem(name="rent", 
-        price=1300, 
+        amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
         date=datetime.date(2025,7,1)
         )
     gas_expense = ExpenseItem(name="gas", 
-        price=35.21, 
+        amount=35.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,1)
         )
     gas_expense2 = ExpenseItem(name="gas", 
-        price=25.21, 
+        amount=25.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,12)
@@ -46,7 +46,7 @@ def test_filter_expenses() -> None:
     assert budget_month._is_filter_cached == True
     
     gas_expense3 = ExpenseItem(name="gas", 
-        price=38.21, 
+        amount=38.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,22)
@@ -62,13 +62,13 @@ def test_combine_months() -> None:
     budget_month1 = BudgetMonth(6, 2025)
     budget_month2 = BudgetMonth(6, 2025)
     fixed_expense = ExpenseItem(name="rent", 
-        price=1300, 
+        amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
         date=datetime.date(2025,7,1)
         )
     gas_expense = ExpenseItem(name="gas", 
-        price=35.21, 
+        amount=35.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,1)
@@ -76,7 +76,7 @@ def test_combine_months() -> None:
     budget_month1.add_expense(fixed_expense)
     budget_month1.add_expense(gas_expense)
     gas_expense2 = ExpenseItem(name="gas", 
-        price=25.21, 
+        amount=25.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
         date=datetime.date(2025,7,12)

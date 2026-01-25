@@ -10,3 +10,6 @@ numpy
 lark
 empy==3.3.4
 pytest
+pymupdf4llm
+llama_index
+pymupdf-layout

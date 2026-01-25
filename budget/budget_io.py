@@ -67,7 +67,7 @@ class YamlBudgetIO(BudgetIO):
                     month, day, year = expense['date'].split("-")
                     budget.add_expense(ExpenseItem(
                         name=expense["name"], 
-                        price=float(expense['price']),
+                        amount=float(expense['amount']),
                         description=expense['description'], 
                         category=ExpenseType(int(expense['category'])),
                         date = date(int(year), int(month), int(day))
@@ -88,5 +88,5 @@ class YamlBudgetIO(BudgetIO):
                 export_file.write(f"    date: {expense.date.strftime("%m-%d-%Y")}\n")
                 export_file.write(f"    description: {expense.description}\n")
                 export_file.write(f"    name: {expense.name}\n")
-                export_file.write(f"    price: {expense.price}\n")
+                export_file.write(f"    amount: {expense.amount}\n")
             
