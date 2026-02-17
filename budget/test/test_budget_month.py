@@ -1,5 +1,5 @@
 import pytest
-from budget.expense import ExpenseItem, ExpenseType
+from budget.expense import ExpenseItem, ExpenseType, ExpenseSource
 from budget.budget_month import BudgetMonth
 import datetime
 import sys
@@ -10,11 +10,11 @@ def test_add_expense() -> None:
         amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
-        date=datetime.date(2025,7,1)
+        date=datetime.date(2025,7,1),
+        source=ExpenseSource.BANK_STATEMENT
         )
     budget_month.add_expense(test_expense)
     assert len(budget_month.expenses) == 1
-    assert budget_month._is_filter_cached == False
 
 def test_filter_expenses() -> None:
     budget_month = BudgetMonth(6, 2025)
@@ -22,39 +22,41 @@ def test_filter_expenses() -> None:
         amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
-        date=datetime.date(2025,7,1)
+        date=datetime.date(2025,7,1),
+        source=ExpenseSource.BANK_STATEMENT
         )
     gas_expense = ExpenseItem(name="gas", 
         amount=35.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,7,1)
+        date=datetime.date(2025,7,1),
+        source=ExpenseSource.CC_STATEMENT
         )
     gas_expense2 = ExpenseItem(name="gas", 
         amount=25.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,7,12)
+        date=datetime.date(2025,7,12),
+        source=ExpenseSource.CC_STATEMENT
         )
     budget_month.add_expense(fixed_expense)
     budget_month.add_expense(gas_expense)
     budget_month.add_expense(gas_expense2)
     budget_month._filter_expenses_by_category()
-    assert len(budget_month._filtered_expenses_by_category.keys()) == 2
-    assert ExpenseType.GAS in budget_month._filtered_expenses_by_category.keys()
-    assert len(budget_month._filtered_expenses_by_category[ExpenseType.GAS]) == 2
-    assert budget_month._is_filter_cached == True
+    assert len(budget_month.filtered_expenses_by_category.keys()) == 2
+    assert ExpenseType.GAS in budget_month.filtered_expenses_by_category.keys()
+    assert len(budget_month.filtered_expenses_by_category[ExpenseType.GAS]) == 2
     
     gas_expense3 = ExpenseItem(name="gas", 
         amount=38.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,7,22)
+        date=datetime.date(2025,7,22),
+        source=ExpenseSource.CC_STATEMENT
         )
     budget_month.add_expense(gas_expense3)
-    assert budget_month._is_filter_cached == False
     previous_date = datetime.date(2000,7,22)
-    for item in budget_month._filtered_expenses_by_category[ExpenseType.GAS]:
+    for item in budget_month.filtered_expenses_by_category[ExpenseType.GAS]:
         assert item.date > previous_date
         previous_date = item.date
 
@@ -65,13 +67,15 @@ def test_combine_months() -> None:
         amount=1300, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.FIXED,
-        date=datetime.date(2025,7,1)
+        date=datetime.date(2025,7,1),
+        source=ExpenseSource.BANK_STATEMENT
         )
     gas_expense = ExpenseItem(name="gas", 
         amount=35.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,7,1)
+        date=datetime.date(2025,7,1),
+        source=ExpenseSource.CC_STATEMENT
         )
     budget_month1.add_expense(fixed_expense)
     budget_month1.add_expense(gas_expense)
@@ -79,7 +83,8 @@ def test_combine_months() -> None:
         amount=25.21, 
         description="All shared expenses that come out of bug account.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,7,12)
+        date=datetime.date(2025,7,12),
+        source=ExpenseSource.CC_STATEMENT
         )
     budget_month2.add_expense(gas_expense2)
 

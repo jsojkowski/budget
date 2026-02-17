@@ -24,6 +24,8 @@ py_library(
     ":budget-month",
     ":budget-io",
     "//common:input-util",
+    "//budget/visualization:pie-chart",
+    "//pdf_reader:bank-statement",
     "//pdf_reader:credit-card-statement",
     requirement("pyyaml"),
   ],

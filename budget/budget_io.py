@@ -1,10 +1,11 @@
 from pathlib import Path
 from abc import ABC, abstractmethod
 from budget.budget_month import BudgetMonth
-from budget.expense import ExpenseItem, ExpenseType
+from budget.expense import ExpenseItem, ExpenseType, ExpenseSource
 import yaml
 from datetime import date
 from enum import Enum
+from common.consts import PROJECT_ROOT_DIR
 
 DEFAULT_PATH = Path("/Users/juliesojkowski/repo/budget/data")
 
@@ -48,7 +49,8 @@ class BudgetIO(ABC):
         pass
     
     def get_filepath(self, month: int, year: int) -> None:
-        return self.filepath / self.extension /f"{year}_{month}_budget.{self.extension}"
+        name = f"{year}_{month}_budget.{self.extension}"
+        return self.filepath / self.extension / name
 
 class YamlBudgetIO(BudgetIO):
     def __init__(self, filepath: Path = DEFAULT_PATH) -> None:
@@ -69,7 +71,8 @@ class YamlBudgetIO(BudgetIO):
                         name=expense["name"], 
                         amount=float(expense['amount']),
                         description=expense['description'], 
-                        category=ExpenseType(int(expense['category'])),
+                        category=ExpenseType[expense['category']],
+                        source=ExpenseSource[expense['source']],
                         date = date(int(year), int(month), int(day))
                     ))
                 return budget
@@ -84,9 +87,10 @@ class YamlBudgetIO(BudgetIO):
             export_file.write(f"income: {budget.income}\n")
             export_file.write("expenses:\n")
             for expense in budget.expenses:
-                export_file.write(f"  - category: {expense.category.value}\n")
+                export_file.write(f"  - category: {expense.category.name}\n")
                 export_file.write(f"    date: {expense.date.strftime("%m-%d-%Y")}\n")
                 export_file.write(f"    description: {expense.description}\n")
                 export_file.write(f"    name: {expense.name}\n")
                 export_file.write(f"    amount: {expense.amount}\n")
+                export_file.write(f"    source: {expense.source.name}\n")
             

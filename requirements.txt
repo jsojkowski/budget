@@ -13,3 +13,5 @@ pytest
 pymupdf4llm
 llama_index
 pymupdf-layout
+plotly
+kaleido

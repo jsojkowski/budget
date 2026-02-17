@@ -5,27 +5,38 @@ import datetime
 
 from common.input_util import get_input_with_condition, get_input_not_empty
 
+class ExpenseSource(Enum):
+    BANK_STATEMENT = auto()
+    CC_STATEMENT = auto()
 
 # class syntax
 class ExpenseType(Enum):
-    FIXED = auto()
-    GROCERY = auto()
-    RESTAURANT  = auto()
-    RESTAURANT_WORK_LUNCH = auto()
+    ATM = auto()
+    BANKING = auto()
+    CAR_INSURANCE = auto()
     CAR_MAINTENANCE = auto()
+    CC_PAYMENT = auto()
+    CHARITY = auto()
+    CHECK = auto()
+    ENTERTAINMENT = auto()
+    FIXED = auto()
     GAS = auto()
+    GIFTS = auto()
+    GROCERY = auto()
+    MEDICAL = auto()
     PADDINGTON_FOOD = auto()
     PADDINGTON_VET = auto()
-    ENTERTAINMENT = auto()
+    PAYROLL = auto()
+    RESTAURANT = auto()
+    RESTAURANT_WORK_LUNCH = auto()
+    SAVINGS = auto()
+    SHOPPING = auto()
     SHOPPING_CLOTHES = auto()
     SHOPPING_MAKEUP = auto()
-    SHOPPING = auto()
+    TAXES = auto()
     TRAVEL = auto()
-    GIFTS = auto()
-    CHARITY = auto()
-    CC_PAYMENT = auto()
-    PAYROLL = auto()
-    CHECK = auto()
+    UNKNOWN = auto()
+
 
 def is_expense(value):
     return int(value) < 11
@@ -44,6 +55,7 @@ class ExpenseItem:
     description: str
     category: ExpenseType
     date: datetime.date
+    source: ExpenseSource
     debug_line: str = ""
 
 

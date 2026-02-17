@@ -2,7 +2,7 @@ import pymupdf4llm
 from datetime import date
 from typing import List, Tuple
 from pathlib import Path
-from budget.expense import ExpenseItem, ExpenseType, get_expense_type_list, is_expense
+from budget.expense import ExpenseItem, ExpenseType, ExpenseSource
 from budget.expense_type_map import TYPE_MAP
 from common.input_util import get_input_with_condition, get_input_not_empty
 
@@ -16,9 +16,9 @@ class CreditCardStatement:
         self.total_expenses: float = 0.0
         self.year = int(path.name.split("_")[1].split("-")[0])
         self.month = int(path.name.split("_")[1].split("-")[1])
-        self.parsePdf()
+        self.parse_pdf()
 
-    def parsePdf(self):
+    def parse_pdf(self):
         md_read = pymupdf4llm.LlamaMarkdownReader()
         data = md_read.load_data(self.path)
 
@@ -52,8 +52,9 @@ class CreditCardStatement:
                     self.total_credits += self.create_expense_from_line(line).amount
                 elif is_purchase:
                     expense = self.create_expense_from_line(line)
-                    self.total_expenses += expense.amount
-                    self.expenses.append(expense)
+                    if expense:
+                        self.total_expenses += expense.amount
+                        self.expenses.append(expense)
 
 
     def create_expense_from_line(self, line: str) -> ExpenseType:
@@ -63,11 +64,15 @@ class CreditCardStatement:
         month, day = line_split[0].strip().split("/")
 
         # Convert the full date string to a datetime object
-        expense_date = date(self.year, int(month), int(day))
+        try:
+            expense_date = date(self.year, int(month), int(day))
+        except:
+            # If the date cannot be determined, the expense is likely two lines and the second just happens to have a slash in it
+            return
         description = " ".join(line.split("1714")[0].split()[2::]).strip()
         amount = float(line.split("1714")[1].strip().replace(',', ''))
         name, category = self.parse_expense(description)
-        return ExpenseItem(name=name, date=expense_date,description=description, amount=amount, category=category, debug_line=debug_line)
+        return ExpenseItem(name=name, date=expense_date,description=description, amount=amount, category=category, debug_line=debug_line, source=ExpenseSource.CC_STATEMENT)
     
     def get_substring(self, description: str) -> str:
         for substring in TYPE_MAP.keys():
@@ -86,11 +91,8 @@ class CreditCardStatement:
         substring = self.get_substring(description)
         if substring in TYPE_MAP.keys():
             return TYPE_MAP[substring]
-        category = ExpenseType(int(get_input_with_condition(f"{get_expense_type_list()}\nLINE: {description}\nEnter the number for the Category: ",  is_expense)))
-        name = get_input_not_empty("Enter desired name: ")
-
-        TYPE_MAP[substring] = (name, category)
-        return TYPE_MAP[substring]
+        print(f"UNKNOWN DESCRIPTION:  {description}")
+        return ("", ExpenseType.UNKNOWN)
 
         
 # import traceback

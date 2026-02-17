@@ -2,7 +2,7 @@ import pymupdf4llm
 from datetime import date
 from typing import List, Tuple
 from pathlib import Path
-from budget.expense import ExpenseItem, ExpenseType, get_expense_type_list, is_expense
+from budget.expense import ExpenseItem, ExpenseType, ExpenseSource, get_expense_type_list, is_expense
 from budget.expense_type_map import TYPE_MAP
 from common.input_util import get_input_with_condition, get_input_not_empty
 
@@ -18,9 +18,9 @@ class BankStatement:
         self.ending_balance: float = 0.0
         self.year = int(path.name.split("_")[1].split("-")[0])
         self.month = int(path.name.split("_")[1].split("-")[1])
-        self.parsePdf()
+        self.parse_pdf()
 
-    def parsePdf(self):
+    def parse_pdf(self):
         md_read = pymupdf4llm.LlamaMarkdownReader()
         data = md_read.load_data(self.path)
 
@@ -83,14 +83,14 @@ class BankStatement:
         month, day, year = line_split[0].strip().split("/")
 
         # Convert the full date string to a datetime object
-        expense_date = date(int(year), int(month), int(day))
+        expense_date = date(self.year, int(month), int(day))
         description = " ".join(line.split()[1:-1]).strip()
         amount = float(line.split()[-1].strip().replace(',', ''))
         if category is None:
             name, category = self.parse_expense(description)
         else:
             name =  "Check"
-        return ExpenseItem(name=name, date=expense_date,description=description, amount=amount, category=category, debug_line=debug_line)
+        return ExpenseItem(name=name, date=expense_date,description=description, amount=amount, category=category, debug_line=debug_line, source=ExpenseSource.BANK_STATEMENT)
     
     def get_substring(self, description: str) -> str:
         for substring in TYPE_MAP.keys():

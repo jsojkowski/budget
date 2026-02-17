@@ -6,6 +6,9 @@ from enum import Enum, auto
 from common.input_util import get_input_with_condition, get_input_not_empty
 from budget.budget import Budget, ExpenseItem 
 from pathlib import Path
+from calendar import Month
+
+
 class MainMenuOptions(Enum):
     LOAD_STATEMENT = auto()
     CREATE_EXPENSE = auto()
@@ -31,8 +34,9 @@ def main(argv: List[str]) -> int:
     all_months = Budget()
 
     current_month = None
-    all_months.load_statement(Path("/Users/juliesojkowski/repo/budget/data/pdf/eStmt_2025-02-16.pdf"))
-    all_months.export()
+    all_months.load_all_statements()
+    all_months.pie_chart()
+    all_months.pie_chart([], 2025, Month.DECEMBER)
     return os.EX_SOFTWARE
     # selected_option = MainMenuOptions(int(get_input_with_condition(help_menu, is_value)))
     while(True):

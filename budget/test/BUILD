@@ -35,6 +35,7 @@ py_test(
     deps = [
         "//budget:budget-io",
         "//budget:budget-month",
+        "//common:consts",
         "//budget:expense",
         requirement("pytest"),
     ],

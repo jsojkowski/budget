@@ -4,45 +4,24 @@ from budget.expense import ExpenseItem, ExpenseType
 import datetime
 from pathlib import Path
 import yaml
-
-DEFAULT_INCOME = 2000.00
-
-def get_base_expense_list(date):
-    return [
-ExpenseItem(name="rent", 
-            amount=1300, 
-            description="All shared expenses that come out of bug account.", 
-            category=ExpenseType.FIXED,
-            date=date
-            ), 
-       ExpenseItem(name="gym", 
-            amount=17.99	, 
-            description="crunch.", 
-            category=ExpenseType.FIXED,
-            date=date,
-            ),      
-]
+from calendar import Month
 
 class BudgetMonth:
-    def __init__(self, month: int, year: int, income: float = DEFAULT_INCOME) -> None:
-        self.expenses: List[ExpenseItem] = get_base_expense_list(datetime.date(year, int(month), 1))
-        self._filtered_expenses_by_category = {}
-        self._is_filter_cached = False
-        self.income = income
-        self.month: datetime.date.month = month
+    def __init__(self, month: int, year: int) -> None:
+        self.expenses: List[ExpenseItem] = []
+        self.filtered_expenses_by_category = {}
+        self.income = 0.0
+        self.month: Month = Month(month)
         self.year: int = year
 
     def combine(self, new_month) -> None:
-        if len(new_month.expenses) > 0:
-            self.expenses.append(new_month.expenses)
-            self._is_filter_cached = False
+        self.expenses += new_month.expenses
+        self._filter_expenses_by_category()
 
 
     def _filter_expenses_by_category(self) -> None:
         """Checks if the expenses have been sorted. If they have not, sort them.
         """
-        if self._is_filter_cached:
-            return
         temp_dict = {}
         for expense in self.expenses:
             if expense.category in temp_dict.keys():
@@ -51,8 +30,7 @@ class BudgetMonth:
                 temp_dict[expense.category] = [expense]
 
         for key, value in temp_dict.items():
-            self._filtered_expenses_by_category[key] = sorted(value, key=lambda item: item.date)
-        self._is_filter_cached = True
+            self.filtered_expenses_by_category[key] = sorted(value, key=lambda item: item.date)
 
     def print(self) -> None:
         """Print month info.
@@ -64,7 +42,7 @@ class BudgetMonth:
         self._filter_expenses_by_category()
         category_total = 0.0
         total = 0.0
-        for category, expenses in self._filtered_expenses_by_category.items():
+        for category, expenses in self.filtered_expenses_by_category.items():
             for expense in expenses:
                 category_total += expense.amount
             print(f"\t\t{category}: {category_total}")
@@ -72,16 +50,18 @@ class BudgetMonth:
             category_total = 0.0
         print(f"\tTotal spent: {total}")
 
-    def add_expense(self, expense_item :ExpenseItem) -> None:
-        self.expenses.append((expense_item))
-        self._is_filter_cached = False
+    def add_expense(self, expense_item: ExpenseItem) -> None:
+        if expense_item.name == "Ford Motor Company Payroll":
+            self.income += expense_item.amount
+        self.expenses.append(expense_item)
+        self._filter_expenses_by_category()
     
     def add_expenses_yaml(self, filename: Path) -> None:
         with open(filename, 'r') as file:
             data = yaml.safe_load(file)
         for item in data["expenses"]:
             self.expenses.append(ExpenseItem(name = item["name"], amount=item["amount"], description=item["description"], category=getattr(ExpenseType, item["category"]), date=datetime.fromisoformat(item["date"])))
-        self._is_filter_cached = False
+        self._filter_expenses_by_category()
 
     def write_spreadsheet(self, filename: Path) -> None:
         """Write the current month to an excel file
@@ -117,7 +97,7 @@ class BudgetMonth:
         else:
             year = int(year)
         income_str = input("Enter income: ")
-        income = float(income_str) if len(income_str) > 0 else DEFAULT_INCOME
+        income = float(income_str)
         return cls(month=month,
                         year=year,
                         income=income)

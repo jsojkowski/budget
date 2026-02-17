@@ -3,11 +3,13 @@ import datetime
 from pathlib import Path
 import glob
 from budget.budget_month import BudgetMonth
-from budget.expense import ExpenseItem
+from budget.expense import ExpenseItem, ExpenseType
 from budget.budget_io import IOType, IOFactory
 from pdf_reader.credit_card_statement import CreditCardStatement
 from pdf_reader.bank_statement import BankStatement
 from common.consts import PDF_DATA_DIR
+from budget.visualization.pie_chart import pie_chart
+from calendar import Month
 
 DEFAULT_DAY_KEY: Final = 1
 
@@ -19,7 +21,7 @@ class Budget:
         self.months: Dict[datetime.date, BudgetMonth] = {}
         self.io_factory = IOFactory()
 
-    def get_month_key(self,year, month ):
+    def get_month_key(self, year, month):
         return datetime.date(year,month, DEFAULT_DAY_KEY)
     
 
@@ -40,20 +42,22 @@ class Budget:
     
     def load_all_statements(self) -> None:
         # TODO  - test this out
-        for file in glob.glob((PDF_DATA_DIR / "data/pdf/**/checking/*.pdf").as_posix()):
+        for file in glob.glob((PDF_DATA_DIR / "**/checking/*.pdf").as_posix()):
+            print(file)
             statement = BankStatement(Path(file))
             for expense in statement.expenses:
                 month_key = self.get_month_key(expense.date.year, expense.date.month)
                 if month_key not in self.months.keys():
                     self.months[month_key] = BudgetMonth(expense.date.month, expense.date.year)
-                self.months[month_key].expenses.append(expense)
-        for file in glob.glob((PDF_DATA_DIR / "data/pdf/**/credit_card/*.pdf").as_posix()):
+                self.months[month_key].add_expense(expense)
+        for file in glob.glob((PDF_DATA_DIR / "**/credit_card/*.pdf").as_posix()):
+            print(file)
             statement = CreditCardStatement(Path(file))
             for expense in statement.expenses:
                 month_key = self.get_month_key(expense.date.year, expense.date.month)
                 if month_key not in self.months.keys():
                     self.months[month_key] = BudgetMonth(expense.date.month, expense.date.year)
-                self.months[month_key].expenses.append(expense)
+                self.months[month_key].add_expense(expense)
         print(self.months)
 
 
@@ -75,3 +79,32 @@ class Budget:
         for month, data in self.months.items():
             print(f"Exporting month: {month}")
             self.io_factory.get_io(format_type).export_budget(data)
+
+    def filter_by_type(self, expense_type: ExpenseType, year: int = 2025, month: Month = None) -> list[ExpenseItem]:
+        if month:
+            key = self.get_month_key(year, month.value)
+            return self.months[key].filtered_expenses_by_category[expense_type]
+        expenses  = []
+        for month in self.months.values():
+            expenses +=  month.filtered_expenses_by_category[expense_type]
+        return expenses
+    
+
+    def pie_chart(self, expense_types: list[ExpenseType] = [], year: int = 2025, month: Month = None) -> None:
+            if len(expense_types) == 1:
+                title = f"Expenses for categories {expense_types[0]} for date: {month.name}/{year}"
+                expenses  = self.filter_by_type(expense_types[0], year, month)
+                names = [expense.name for expense in expenses]
+                amounts = [expense.amount for expense in expenses]  
+                pie_chart(names, amounts, title)
+                return
+            title = f"Expenses with category {", ".join([expense.name for expense in expense_types])} in time {month}/{year}"
+            if len(expense_types) == 0:
+                expense_types = [expense_type for expense_type in ExpenseType]
+                title = f"Expenses in time {month}/{year}"
+            for expense_type in expense_types:
+                expenses = self.filter_by_type(expense_type, year, month)
+                amounts += [expense.amount for expense in expenses]
+                pie_chart(expense_types, amounts, title)
+                return
+
