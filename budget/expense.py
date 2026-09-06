@@ -66,24 +66,41 @@ class ExpenseItem:
         print(f"Category: {self.category.name}")
         print(f"Date: {self.date}")
     
+    # @classmethod
+    # def create_from_input(cls):
+    #     """Add an expense from user input.
+
+    #     Returns:
+    #         ExpenseItem: The Expense Item
+    #     """
+    #     name = input("Enter Expense Name: ")
+    #     amount = float(input("Enter amount: "))
+    #     description = input("Enter description: ")
+    #     is_value = lambda x: int(x) in [e.value for e in ExpenseType]
+    #     category = ExpenseType(int(get_input_with_condition(f"{get_expense_type_list()}\nEnter the number for the Category: ",  is_value)))
+    #     date_string = input("Enter date as MM/DD/YYYY: ")
+    #     month, day, year = date_string.split("/")
+    #     date = datetime.date(int(year), int(month), int(day))
+    #     return cls(name=name,
+    #                     amount=amount,
+    #                     description=description,
+    #                     category=category,
+    #                     date=date)
+    
     @classmethod
-    def create_from_input(cls):
+    def create_from_database_row(cls, item):
         """Add an expense from user input.
 
         Returns:
             ExpenseItem: The Expense Item
         """
-        name = input("Enter Expense Name: ")
-        amount = float(input("Enter amount: "))
-        description = input("Enter description: ")
-        is_value = lambda x: int(x) in [e.value for e in ExpenseType]
-        category = ExpenseType(int(get_input_with_condition(f"{get_expense_type_list()}\nEnter the number for the Category: ",  is_value)))
-        date_string = input("Enter date as MM/DD/YYYY: ")
-        month, day, year = date_string.split("/")
-        date = datetime.date(int(year), int(month), int(day))
-        return cls(name=name,
-                        amount=amount,
-                        description=description,
-                        category=category,
-                        date=date)
+        return cls(name=item[0],
+                        amount=item[1],
+                        description=item[2],
+                        category=ExpenseType[item[3]],
+                        date=datetime.datetime.strptime(item[4], "%Y-%m-%d").date(),
+                        source=ExpenseSource[item[5]],
+                        debug_line= item[6])
+    
+
     

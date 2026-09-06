@@ -34,3 +34,29 @@ py_binary(
     "//common:input-util",
   ],
 )
+
+py_binary(
+  name = "generate-latex",
+  srcs = ["generate_latex.py"],
+  main = "generate_latex.py",
+  deps = [
+    "//budget:budget",
+    "//common:input-util",
+  ],
+)
+load("@jsoj_deps//:requirements.bzl", "requirement")
+
+py_binary(
+  name = "run-web",
+  srcs = ["run_web.py"],
+  main = "run_web.py",
+  data= [
+    "//static:style",
+    "//templates:templates",
+  ],
+  deps = [
+    requirement("flask"),
+    "//budget:budget",
+    "//common:input-util",
+  ],
+)

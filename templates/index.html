@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JSOJ Expense tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- FIXED: Replaced the broken jsdelivr link with the actual full Chart.js engine script -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js/Chart.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <h1>Welcome, JSOJ!</h1>
+    <div class="card">
+        <p style="white-space: pre-line;">{{ summary }}</p>
+
+        <!-- SQL Populated Dropdown Filter Form -->
+        <form method="GET" action="{{ url_for('home') }}" style="margin-bottom: 2rem;">
+            <!-- Keep active sort context alive when filtering -->
+            <input type="hidden" name="sort_by" value="{{ current_sort }}">
+            <input type="hidden" name="order" value="{{ current_order }}">
+            <label for="date_filter" style="margin-right: 0.5rem; color: var(--text-light);">Filter by Date:</label>
+            <select name="date_filter" id="date_filter" onchange="this.form.submit()">
+                <option value="">-- All Dates --</option>
+                {% for date in dates %}
+                <option value="{{ date }}" {% if date==current_date_filter %}selected{% endif %}>
+                    {{ date }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <!-- 2. The Interactive Tab Buttons -->
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="switchTab(event, 'table-view')">📋 Table View</button>
+            <button class="tab-btn" onclick="switchTab(event, 'chart-view')">📊 Pie Chart View</button>
+        </div>
+
+        <!-- 3. Tab Content: Table (Visible by Default) -->
+        <div id="table-view" class="tab-content active">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>
+                            <a
+                                href="{{ url_for('home', sort_by='col1', order='desc' if current_sort == 'col1' and current_order == 'asc' else 'asc') }}">
+                                Name {% if current_sort == 'col1' %}{{ '🔼' if current_order == 'asc' else '🔽' }}{%
+                                endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a
+                                href="{{ url_for('home', sort_by='col2', order='desc' if current_sort == 'col2' and current_order == 'asc' else 'asc') }}">
+                                Date {% if current_sort == 'col2' %}{{ '🔼' if current_order == 'asc' else '🔽' }}{%
+                                endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a
+                                href="{{ url_for('home', sort_by='col3', order='desc' if current_sort == 'col3' and current_order == 'asc' else 'asc') }}">
+                                Amount {% if current_sort == 'col3' %}{{ '🔼' if current_order == 'asc' else '🔽' }}{%
+                                endif %}
+                            </a>
+                        </th>
+                        <th>
+                            <a
+                                href="{{ url_for('home', sort_by='col4', order='desc' if current_sort == 'col4' and current_order == 'asc' else 'asc') }}">
+                                Category {% if current_sort == 'col4' %}{{ '🔼' if current_order == 'asc' else '🔽' }}{%
+                                endif %}
+                            </a>
+                        </th>
+                        <th> Source </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in expenses %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[4] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[3] }}</td>
+                        <td>{{ item[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4. Tab Content: Dynamic Pie Chart (Hidden by Default) -->
+        <div id="chart-view" class="tab-content">
+            <div class="chart-wrapper">
+                <canvas id="expensePieChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. JavaScript Switcher & Chart Rendering Script -->
+    <script>
+        // --- Tab Switching Engine ---
+        function switchTab(event, tabId) {
+            // Hide all tab views
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class highlighting from all buttons
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Show current clicked layout block
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- Dynamic Data Extraction from Jinja Loop ---
+        window.onload = function () {
+            const rawLabels = [];
+            const rawValues = [];
+
+            let rawAmount = "";
+
+            {% for item in expenses %}
+            rawLabels.push("{{ item[3] }}");
+
+            // We reuse the single variable without redeclaring it with "let"
+            rawAmount = "{{ item[1] }}".replace(/[^0-9.-]+/g, "");
+            rawValues.push(parseFloat(rawAmount) || 0);
+            {% endfor %}
+
+            const totalsMap = {};
+            rawLabels.forEach((label, idx) => {
+                let cleanLabel = label.trim() === "" ? "Other" : label;
+                totalsMap[cleanLabel] = (totalsMap[cleanLabel] || 0) + rawValues[idx];
+            });
+
+            const chartLabels = Object.keys(totalsMap);
+            const chartData = Object.values(totalsMap);
+
+            // --- Chart.js Configuration Setup ---
+            const ctx = document.getElementById('expensePieChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: chartData,
+                        backgroundColor: ['#ff2a85', '#00f076', '#9d4edd', '#3a0ca3', '#f72585', '#4cc9f0'],
+                        borderWidth: 2,
+                        borderColor: '#1c1625'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#f5f0fa'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+
+</html>

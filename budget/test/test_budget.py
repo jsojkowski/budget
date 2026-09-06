@@ -5,8 +5,9 @@ from budget.budget_month import BudgetMonth
 import datetime
 import sys
 
-def test_add_expense() -> None:
-    budget = Budget()
+def test_add_expense(tmp_path) -> None:
+    test_path = tmp_path / "example.db"
+    budget = Budget(test_path)
     june = datetime.date(2025,6,DEFAULT_DAY_KEY)
     test_expense = ExpenseItem(name="rent", 
             amount=1300, 
@@ -16,19 +17,19 @@ def test_add_expense() -> None:
             source=ExpenseSource.BANK_STATEMENT
             )
     budget.add_expense(test_expense)
-    assert len(budget.months) == 1
-    assert len(budget.months[june].expenses) == 1
+    assert budget.num_expenses() == 1
+    assert len(budget.get_expenses_by_month(june)) == 1
 
     test_expense = ExpenseItem(name="gas", 
         amount=35.23, 
         description="Gas.", 
         category=ExpenseType.GAS,
-        date=datetime.date(2025,6,2),
+        date=datetime.date(2025,6,10),
         source=ExpenseSource.CC_STATEMENT
         )
     budget.add_expense(test_expense)
-    assert len(budget.months) == 1
-    assert len(budget.months[june].expenses) == 2
+    assert budget.num_expenses() == 2
+    assert len(budget.get_expenses_by_month(june)) == 2
 
     test_expense = ExpenseItem(name="rent", 
         amount=1300, 
@@ -38,47 +39,10 @@ def test_add_expense() -> None:
         source=ExpenseSource.BANK_STATEMENT
         )
     budget.add_expense(test_expense)
-    assert len(budget.months) == 2
     july = datetime.date(2025,7,DEFAULT_DAY_KEY)
-    assert len(budget.months[july].expenses) == 1
+    assert budget.num_expenses() == 3
+    assert len(budget.get_expenses_by_month(july)) == 1
 
-def test_add_expense_create(monkeypatch) -> None:
-    budget = Budget()
-    test_expense = ExpenseItem(name="rent", 
-        amount=1300, 
-        description="All shared expenses that come out of bug account.", 
-        category=ExpenseType.FIXED,
-        date=datetime.date(2025,7,1),
-        source=ExpenseSource.BANK_STATEMENT
-        )
-    monkeypatch.setattr(ExpenseItem, 'create', lambda _ : test_expense)
-    budget.add_expense(test_expense)
-    assert len(budget.months) == 1
-    july = datetime.date(2025,7,DEFAULT_DAY_KEY)
-    assert len(budget.months[july].expenses) == 1
-
-
-def test_create_month() -> None:
-    budget = Budget()
-    new_month = BudgetMonth(6,2025)
-    assert len(budget.months) == 0
-    budget.create_month(new_month)
-    assert len(budget.months) == 1
-    budget.create_month(new_month)
-    assert len(budget.months) == 1
-    new_month = BudgetMonth(7,2025)
-    budget.create_month(new_month)
-    assert len(budget.months) == 2
-
-def create_month():
-    return BudgetMonth(7,2025)
-
-def test_add_expense_create(monkeypatch) -> None:
-    budget = Budget()
-    monkeypatch.setattr(BudgetMonth, 'create', create_month)
-    budget.create_month()
-    assert len(budget.months) == 1
-   
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__]))

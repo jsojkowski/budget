@@ -4,13 +4,18 @@ load("@jsoj_deps//:requirements.bzl", "requirement")
 py_library(
   name = "budget-io",
   srcs = [
+    "io_factory.py",
     "budget_io.py",
+    "budget_latex.py",
+    "budget_yaml.py",
   ],
   deps = [
     ":expense",
     ":budget-month",
     "//common:input-util",
+    "//common:consts",
     requirement("pyyaml"),
+    requirement("pylatex"),
   ],
 )
 
@@ -60,3 +65,5 @@ py_library(
     requirement("pyyaml"),
   ],
 )
+
+

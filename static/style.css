@@ -1,0 +1,196 @@
+:root {
+  --bg-dark: #120e16;       /* Deep purple-black background */
+  --panel-dark: #1c1625;    /* Slightly lighter purple-black for cards */
+  --text-light: #f5f0fa;    /* Off-white for high contrast readability */
+  --pink-neon: #ff2a85;     /* Hot pink for primary actions, links, and accents */
+  --green-neon: #00f076;    /* Bright green for success metrics, badges, and highlights */
+  --purple-glow: #9d4edd;   /* Vivid purple for secondary borders and active states */
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  padding: 2rem;
+}
+
+/* --- Navigation Typography & Styles --- */
+nav {
+  background-color: var(--panel-dark);
+  border: 1px solid var(--purple-glow);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1.5rem;
+}
+
+nav a {
+  color: #b0a8b9; 
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+nav a:hover {
+  color: var(--pink-neon);
+}
+
+/* --- Main Layout Headers --- */
+h1 {
+  color: var(--pink-neon);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(255, 42, 133, 0.2);
+}
+
+p {
+  color: #b0a8b9; /* Soft muted purple-gray for body text */
+  margin-bottom: 1.5rem;
+  max-width: 600px;
+}
+
+/* --- Interactive Component Examples --- */
+
+/* Highlight text or key terms */
+.highlight {
+  color: var(--green-neon);
+  font-weight: bold;
+}
+
+/* Call-to-action container card */
+.card {
+  background: linear-gradient(135deg, var(--panel-dark) 0%, #251b33 100%);
+  border-left: 4px solid var(--green-neon);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Action button */
+.btn-primary {
+  background-color: var(--pink-neon);
+  border: none;
+  border-radius: 4px;
+  color: var(--text-light);
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(255, 42, 133, 0.4);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+  background-color: var(--panel-dark);
+  border: 1px solid var(--purple-glow);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #251b33;
+}
+
+th {
+  background-color: #251b33;
+}
+
+/* Header sort link styling */
+th a {
+  color: var(--pink-neon) !important;
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+}
+
+th a:hover {
+  color: var(--green-neon);
+}
+
+tr:hover {
+  background-color: rgba(157, 78, 221, 0.1); /* Subtle purple hover highlight */
+}
+
+table thead tr th a {
+  color: var(--pink-neon) !important;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+}
+
+table thead tr th a:hover {
+  color: var(--green-neon) !important;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #251b33;
+  
+  /* FORCE table text to use your theme's light purple/white color instead of default black */
+  color: var(--text-light) !important; 
+}
+
+/* --- Tab Navigation Container --- */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--purple-glow);
+  padding-bottom: 2px;
+}
+
+.tab-btn {
+  background-color: var(--panel-dark);
+  color: var(--text-light);
+  border: 1px solid var(--purple-glow);
+  border-bottom: none;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--green-neon);
+}
+
+.tab-btn.active {
+  background-color: var(--pink-neon);
+  color: var(--text-light);
+  border-color: var(--pink-neon);
+}
+
+/* --- View Toggle Logic --- */
+.tab-content {
+  display: none; /* Hidden by default */
+}
+
+.tab-content.active {
+  display: block; /* Shown when active class is applied */
+}
+
+/* --- Chart Container Sizing --- */
+.chart-wrapper {
+  max-width: 500px;
+  margin: 2rem auto;
+  background-color: var(--panel-dark);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--purple-glow);
+}

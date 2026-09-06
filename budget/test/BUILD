@@ -40,3 +40,26 @@ py_test(
         requirement("pytest"),
     ],
 )
+
+py_test(
+    name = "test-expense",
+    size = "small",
+    srcs = ["test_expense.py"],
+    main = "test_expense.py",
+    deps = [
+        "//budget:expense",
+        requirement("pytest"),
+    ],
+)
+
+py_test(
+    name = "test-latex",
+    size = "small",
+    srcs = ["test_latex.py"],
+    main = "test_latex.py",
+    deps = [
+        "//budget:expense",
+        "//budget:budget-latex",
+        requirement("pytest"),
+    ],
+)
